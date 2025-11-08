@@ -5,6 +5,9 @@ function getParam(name){
 function hasParam(name){
   return searchParams.has(name)
 }
-if !hasParam("loading") || getParam("loading") != "true" {
+if !hasParam("loading"){
+  window.location.href = "/loading"
+}
+if getParam("loading") != "true" {
   window.location.href = "/loading"
 }
