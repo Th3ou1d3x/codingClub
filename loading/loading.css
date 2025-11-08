@@ -35,7 +35,6 @@
 .cssload-loading-center {
   display: inline-block;
   position: absolute;
-    /* The color can be custmized, This color is for center cube.*/
   background: #ff0000;
   height: 56px;
   width: 56px;
