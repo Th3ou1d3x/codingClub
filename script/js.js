@@ -5,3 +5,6 @@ function getParam(name){
 function hasParam(name){
   return searchParams.has(name)
 }
+if !hasParam("loading") || getParam("loading") != "true" {
+  
+}
