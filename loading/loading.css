@@ -1,59 +1,191 @@
-/* From Uiverse.io by umairmanzoor1143 */ 
-.loader {
-  width: 50px;
-  aspect-ratio: 1.154;
+/* From Uiverse.io by exyreams */ 
+.cssload-container * {
+  box-sizing: border-box;
+}
+
+.cssload-container {
+  margin: 38px auto 0 auto;
+  max-width: 1048px;
+}
+
+.cssload-container ul li {
+  list-style: none;
+}
+
+.cssload-flex-container {
+  display: flex;
+  display: -o-flex;
+  display: -ms-flex;
+  display: -webkit-flex;
+  display: -moz-flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: space-around;
+}
+
+.cssload-flex-container li {
+  padding: 19px;
+  height: 188px;
+  width: 188px;
+  margin: 56px 38px;
   position: relative;
-  background: conic-gradient(
-    from 120deg at 50% 64%,
-    #0000,
-    #ff1919 1deg 120deg,
-    #0000 121deg
-  );
-  animation: l27-0 1.5s infinite cubic-bezier(0.3, 1, 0, 1);
+  text-align: center;
 }
 
-.loader:before,
-.loader:after {
-  content: "";
+.cssload-loading-center {
+  display: inline-block;
   position: absolute;
-  inset: 0;
-  background: inherit;
-  transform-origin: 50% 66%;
-  animation: l27-1 1.5s infinite;
+    /* The color can be custmized, This color is for center cube.*/
+  background: #ff0000;
+  height: 56px;
+  width: 56px;
+  left: 68px;
+  top: 69px;
+  transform: rotate(45deg);
+  border-radius: 6px;
+  animation: pulse 1.3s ease infinite;
 }
 
-.loader:after {
-  --s: -1;
+.cssload-loading {
+  display: inline-block;
+  position: relative;
+  width: 141px;
+  height: 141px;
+  margin-top: 6px;
+  transform: rotate(45deg);
 }
 
-@keyframes l27-0 {
-  0%,
-  30% {
-    transform: rotate(0);
+.cssload-loading:after, .cssload-loading:before {
+  position: absolute;
+  content: '';
+  height: 19px;
+  width: 19px;
+  display: block;
+  top: 0;
+    /* The color can be custmized, This color is for 4 cubes.*/
+  background: #ff5252;
+  border-radius: 6px;
+}
+
+.cssload-loading:after {
+  right: 0;
+  animation: square-tr 2.6s ease infinite;
+  animation-delay: .162.5s;
+}
+
+.cssload-loading:before {
+  animation: square-tl 2.6s ease infinite;
+  animation-delay: .162.5s;
+}
+
+.cssload-loading.cssload-two {
+  position: relative;
+  top: -150px;
+}
+
+.cssload-loading.cssload-two:after, .cssload-loading.cssload-two:before {
+  bottom: 0;
+  top: initial;
+}
+
+.cssload-loading.cssload-two:after {
+  animation: square-br 2.6s ease infinite;
+  animation-direction: reverse;
+}
+
+.cssload-loading.cssload-two:before {
+  animation: square-bl 2.6s ease infinite;
+  animation-direction: reverse;
+}
+
+@keyframes square-tl {
+  0% {
+    transform: translate(0, 0);
   }
 
-  70% {
-    transform: rotate(120deg);
+  25% {
+    transform: translate(0, 117.5px);
   }
 
-  70.01%,
-  100% {
+  50% {
+    transform: translate(117.5px, 117.5px);
+  }
+
+  75% {
+    transform: translate(117.5px, 0);
+  }
+}
+
+@keyframes square-bl {
+  0% {
+    transform: translate(0, 0);
+  }
+
+  25% {
+    transform: translate(0, -117.5px);
+  }
+
+  50% {
+    transform: translate(117.5px, -117.5px);
+  }
+
+  75% {
+    transform: translate(117.5px, 0);
+  }
+}
+
+@keyframes square-tr {
+  0% {
+    transform: translate(0, 0);
+  }
+
+  25% {
+    transform: translate(-117.5px, 0);
+  }
+
+  50% {
+    transform: translate(-117.5px, 117.5px);
+  }
+
+  75% {
+    transform: translate(0, 117.5px);
+  }
+}
+
+@keyframes square-br {
+  0% {
+    transform: translate(0, 0);
+  }
+
+  25% {
+    transform: translate(-117.5px, 0);
+  }
+
+  50% {
+    transform: translate(-117.5px, -117.5px);
+  }
+
+  75% {
+    transform: translate(0, -117.5px);
+  }
+}
+
+@keyframes rotate {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
     transform: rotate(360deg);
   }
 }
 
-@keyframes l27-1 {
-  0% {
-    transform: rotate(calc(var(--s, 1) * 120deg)) translate(0);
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(inherit) rotate(45deg);
   }
 
-  30%,
-  70% {
-    transform: rotate(calc(var(--s, 1) * 120deg))
-      translate(calc(var(--s, 1) * -5px), 10px);
-  }
-
-  100% {
-    transform: rotate(calc(var(--s, 1) * 120deg)) translate(0);
+  75% {
+    transform: scale(0.25) rotate(45deg);
   }
 }
