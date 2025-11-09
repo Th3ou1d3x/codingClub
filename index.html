@@ -1,60 +1,1265 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>The Coding Club</title>
-  <link rel="stylesheet" href="style/css.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Coding Club (Pure HTML/JS - Realtime DB)</title>
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script> 
+
+    <style>
+        /* --- Tailwind-Inspired CSS Conversion --- */
+        
+        /* Base Reset & Colors */
+        :root {
+            --color-gray-50: #f9fafb;
+            --color-gray-200: #e5e7eb;
+            --color-gray-300: #d1d5db;
+            --color-gray-400: #9ca3af;
+            --color-gray-500: #6b7280;
+            --color-gray-600: #4b5563;
+            --color-gray-700: #374151;
+            --color-gray-800: #1f2937;
+            --color-gray-900: #111827;
+            --color-gray-950: #030712;
+
+            --color-indigo-400: #818cf8;
+            --color-indigo-500: #6366f1;
+            --color-indigo-600: #4f46e5;
+            --color-indigo-700: #4338ca;
+
+            --color-red-500: #ef4444;
+            --color-red-600: #dc2626;
+            --color-red-700: #b91c1c;
+            --color-red-950: #450a0a;
+            
+            --color-green-400: #4ade80;
+            --color-green-600: #10b981;
+            --color-green-700: #047857;
+
+            --color-yellow-300: #fde047;
+            --color-yellow-500: #f59e0b;
+            --color-yellow-600: #d97706;
+
+            --color-pink-500: #ec4899;
+            --color-cyan-500: #06b6d4;
+            --color-purple-400: #c084fc;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        .root {
+            transition: background-color 0.3s, color 0.3s;
+        }
+        
+        /* Theming Classes based on getThemeClasses */
+        .dark-mode {
+            background-color: var(--color-gray-950);
+            color: var(--color-gray-100);
+        }
+        .light-mode {
+            background-color: var(--color-gray-50);
+            color: var(--color-gray-900);
+        }
+        .card-dark { background-color: var(--color-gray-900); border: 1px solid var(--color-gray-800); }
+        .card-light { background-color: white; border: 1px solid var(--color-gray-200); }
+        .card-secondary-dark { background-color: var(--color-gray-800); border: 1px solid var(--color-gray-700); }
+        .card-secondary-light { background-color: var(--color-gray-100); border: 1px solid var(--color-gray-300); }
+        .input-dark { background-color: var(--color-gray-700); color: var(--color-gray-100); border: 1px solid var(--color-gray-600); }
+        .input-light { background-color: var(--color-gray-200); color: var(--color-gray-900); border: 1px solid var(--color-gray-300); }
+        .header-dark { color: var(--color-indigo-400); }
+        .header-light { color: var(--color-indigo-700); }
+        .sidebar-dark { background-color: var(--color-gray-900); border-right: 1px solid var(--color-gray-800); }
+        .sidebar-light { background-color: white; border-right: 1px solid var(--color-gray-200); }
+        .button-primary { background-color: var(--color-indigo-600); color: white; transition: background-color 0.2s; }
+        .button-primary:hover { background-color: var(--color-indigo-700); }
+        .button-secondary-dark { background-color: var(--color-gray-700); color: var(--color-gray-100); transition: background-color 0.2s; }
+        .button-secondary-dark:hover { background-color: var(--color-gray-600); }
+        .button-secondary-light { background-color: var(--color-gray-200); color: var(--color-gray-900); transition: background-color 0.2s; }
+        .button-secondary-light:hover { background-color: var(--color-gray-300); }
+        .message-own { background-color: var(--color-indigo-600); color: white; }
+        .message-other-dark { background-color: var(--color-gray-800); color: var(--color-gray-100); }
+        .message-other-light { background-color: var(--color-gray-200); color: var(--color-gray-900); }
+
+        /* Utility Classes (Simplified Tailwind) */
+        .flex { display: flex; }
+        .flex-col { flex-direction: column; }
+        .flex-grow { flex-grow: 1; }
+        .flex-shrink-0 { flex-shrink: 0; }
+        .items-center { align-items: center; }
+        .justify-center { justify-content: center; }
+        .justify-between { justify-content: space-between; }
+        .h-screen { height: 100vh; }
+        .h-full { height: 100%; }
+        .w-full { width: 100%; }
+        .w-20 { width: 5rem; }
+        .w-64 { width: 16rem; }
+        .overflow-hidden { overflow: hidden; }
+        .overflow-y-auto { overflow-y: auto; }
+        .p-2 { padding: 0.5rem; }
+        .p-3 { padding: 0.75rem; }
+        .p-4 { padding: 1rem; }
+        .p-5 { padding: 1.25rem; }
+        .p-6 { padding: 1.5rem; }
+        .p-8 { padding: 2rem; }
+        .py-0\.5 { padding-top: 0.125rem; padding-bottom: 0.125rem; }
+        .pt-4 { padding-top: 1rem; }
+        .pt-0 { padding-top: 0; }
+        .pb-6 { padding-bottom: 1.5rem; }
+        .pl-2 { padding-left: 0.5rem; }
+        .pr-2 { padding-right: 0.5rem; }
+        .m-3 { margin: 0.75rem; }
+        .mt-1 { margin-top: 0.25rem; }
+        .mt-2 { margin-top: 0.5rem; }
+        .mt-3 { margin-top: 0.75rem; }
+        .mt-4 { margin-top: 1rem; }
+        .mt-6 { margin-top: 1.5rem; }
+        .mb-1 { margin-bottom: 0.25rem; }
+        .mb-2 { margin-bottom: 0.5rem; }
+        .mb-3 { margin-bottom: 0.75rem; }
+        .mb-4 { margin-bottom: 1rem; }
+        .mb-6 { margin-bottom: 1.5rem; }
+        .mb-8 { margin-bottom: 2rem; }
+        .space-x-2 > * + * { margin-left: 0.5rem; }
+        .space-x-3 > * + * { margin-left: 0.75rem; }
+        .space-x-4 > * + * { margin-left: 1rem; }
+        .space-y-2 > * + * { margin-top: 0.5rem; }
+        .space-y-3 > * + * { margin-top: 0.75rem; }
+        .space-y-4 > * + * { margin-top: 1rem; }
+        .text-xs { font-size: 0.75rem; }
+        .text-sm { font-size: 0.875rem; }
+        .text-lg { font-size: 1.125rem; }
+        .text-xl { font-size: 1.25rem; }
+        .text-2xl { font-size: 1.5rem; }
+        .text-3xl { font-size: 1.875rem; }
+        .text-4xl { font-size: 2.25rem; }
+        .text-5xl { font-size: 3rem; }
+        .font-semibold { font-weight: 600; }
+        .font-bold { font-weight: 700; }
+        .font-extrabold { font-weight: 800; }
+        .italic { font-style: italic; }
+        .rounded-full { border-radius: 9999px; }
+        .rounded-lg { border-radius: 0.5rem; }
+        .rounded-xl { border-radius: 0.75rem; }
+        .rounded-2xl { border-radius: 1rem; }
+        .rounded-br-none { border-bottom-right-radius: 0; }
+        .rounded-tl-none { border-top-left-radius: 0; }
+        .shadow-md { box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1); }
+        .shadow-lg { box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1); }
+        .shadow-xl { box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1); }
+        .shadow-2xl { box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); }
+        .shadow-inner { box-shadow: inset 0 2px 4px 0 rgba(0, 0, 0, 0.05); }
+        .text-center { text-align: center; }
+        .transition { transition: all 0.2s ease-in-out; }
+        .duration-200 { transition-duration: 0.2s; }
+        .truncate { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .max-w-md { max-width: 28rem; }
+        .max-w-xl { max-width: 36rem; }
+        .min-h-screen { min-height: 100vh; }
+        .cursor-pointer { cursor: pointer; }
+        .resize-none { resize: none; }
+        .disabled\:opacity-50:disabled { opacity: 0.5; }
+        .disabled\:cursor-not-allowed:disabled { cursor: not-allowed; }
+        .animate-spin { animation: spin 1s linear infinite; }
+        @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        
+        /* Specific Rank Colors */
+        .text-red-500 { color: var(--color-red-500); } .bg-red-900 { background-color: var(--color-gray-900); }
+        .text-pink-500 { color: var(--color-pink-500); } .bg-pink-900 { background-color: #831843; }
+        .text-yellow-500 { color: var(--color-yellow-500); } .bg-yellow-900 { background-color: #78350f; }
+        .text-orange-500 { color: #f97316; } .bg-orange-900 { background-color: #7c2d12; }
+        .text-cyan-500 { color: var(--color-cyan-500); } .bg-cyan-900 { background-color: #164e63; }
+        .text-blue-500 { color: #3b82f6; } .bg-blue-900 { background-color: #1e3a8a; }
+        .text-gray-400 { color: var(--color-gray-400); } .bg-gray-700 { background-color: var(--color-gray-700); }
+        .text-red-700 { color: var(--color-red-700); } .bg-red-950 { background-color: var(--color-red-950); }
+        
+        /* Sub-Ranks */
+        .bg-green-700 { background-color: var(--color-green-700); }
+        .bg-purple-700 { background-color: #6d28d9; }
+
+        /* Media Queries (Responsive Design) */
+        @media (min-width: 768px) { /* md: */
+            .md\:w-64 { width: 16rem; }
+            .md\:items-start { align-items: flex-start; }
+            .md\:justify-start { justify-content: flex-start; }
+            .md\:block { display: block; }
+            .md\:flex { display: flex; }
+            .md\:grid-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+            .md\:grid-cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+            .md\:grid-cols-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+        }
+        @media (min-width: 1024px) { /* lg: */
+             .lg\:grid-cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+        }
+    </style>
 </head>
-<body>
-  <header class="hero">
-    <h1>💻 The Coding Club</h1>
-    <p>Where ideas turn into code and creativity becomes reality.</p>
-    <button class="btn">Join Us</button>
-  </header>
+<body id="app-root" class="root">
+    <div id="loading-screen" class="flex flex-col items-center justify-center h-screen dark-mode">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-loader-2 w-10 h-10 text-indigo-500 animate-spin"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>
+        <p class="mt-4 text-gray-300">Initializing CODING CLUB...</p>
+    </div>
 
-  <main>
-    <section class="about">
-      <h2>About Us</h2>
-      <p>
-        We’re a group of students passionate about coding, design, and building
-        things that live on the web. From simple websites to fun games and creative
-        experiments — we learn, share, and create together.
-      </p>
-    </section>
+    <script>
+        // --- GLOBAL CONFIGURATION AND CONSTANTS (YOUR CREDENTIALS) ---
+        
+        // 1. The 'appId' is used separately in the code for data paths
+        const appId = '1:675385003551:web:80eae32a48f3008bfccf2a'; 
+        
+        // 2. The full configuration object, including the necessary databaseURL
+        const firebaseConfig = {
+            apiKey: "AIzaSyBG_O5bKxX70rtvZojqneVIhF16OjA7oKk",
+            authDomain: "yorkoddb.firebaseapp.com",
+            databaseURL: "https://yorkoddb-default-rtdb.firebaseio.com",
+            projectId: "yorkoddb",
+            storageBucket: "yorkoddb.firebasestorage.app",
+            messagingSenderId: "675385003551",
+            appId: "1:675385003551:web:80eae32a48f3008bfccf2a",
+            measurementId: "G-ZW8YLXFZ5G"
+        };
+        
+        let app, auth, db;
+        let globalState = {
+            userId: null,
+            isAuthReady: false,
+            username: '',
+            userProfile: {},
+            messages: [],
+            users: {},
+            isInVoiceLobby: false,
+            loading: true,
+            currentScreen: 'Auth',
+            theme: 'dark'
+        };
 
-    <section class="projects">
-      <h2>What We Do</h2>
-      <div class="project-grid">
-        <div class="project-card">
-          <h3>🌐 Web Development</h3>
-          <p>We design and code websites using HTML, CSS, and JavaScript — from portfolio pages to full web apps.</p>
-        </div>
-        <div class="project-card">
-          <h3>🧠 Coding Challenges</h3>
-          <p>We solve puzzles, learn new languages, and take part in small hackathons and online coding contests.</p>
-        </div>
-        <div class="project-card">
-          <h3>🎮 Game Projects</h3>
-          <p>We build browser-based games and interactive projects that show off our coding creativity.</p>
-        </div>
-      </div>
-    </section>
+        const RANKS = {
+            OWNER: { level: 9, name: 'Owner', color: 'text-red-500', bg: 'bg-red-900', icon: 'Key' },
+            CO_OWNER: { level: 8, name: 'Co-Owner', color: 'text-pink-500', bg: 'bg-pink-900', icon: 'Shield' },
+            HEAD_ADMIN: { level: 7, name: 'Head Admin', color: 'text-yellow-500', bg: 'bg-yellow-900', icon: 'Shield' },
+            ADMIN: { level: 6, name: 'Admin', color: 'text-orange-500', bg: 'bg-orange-900', icon: 'Shield' },
+            HEAD_MOD: { level: 5, name: 'Head Moderator', color: 'text-cyan-500', bg: 'bg-cyan-900', icon: 'UserCheck' },
+            MODERATOR: { level: 4, name: 'Moderator', color: 'text-blue-500', bg: 'bg-blue-900', icon: 'UserCheck' },
+            USER: { level: 1, name: 'User', color: 'text-gray-400', bg: 'bg-gray-700', icon: 'UserMinus' },
+            BANNED: { level: 0, name: 'Banned', color: 'text-red-700', bg: 'bg-red-950', icon: 'UserX' },
+        };
 
-    <section class="join">
-      <h2>Get Involved</h2>
-      <p>
-        Whether you’re new to programming or already building apps, there’s a place
-        for you here. Join us to collaborate, learn, and code something amazing.
-      </p>
-      <button class="btn">Join the Club</button>
-    </section>
-  </main>
+        const SUB_RANKS = {
+            NONE: { name: 'None', color: 'text-gray-500' },
+            VERIFIED: { name: 'Verified', color: 'text-green-400', badge: 'bg-green-700' },
+            CERTIFIED: { name: 'Certified', color: 'text-purple-400', badge: 'bg-purple-700' },
+        };
+        
+        // --- UTILITY FUNCTIONS ---
+        
+        const getIcon = (name, className = 'w-6 h-6') => {
+            const icon = lucide.createIcons()[name];
+            if (icon) {
+                return icon.toSvg({ class: `lucide lucide-${name.toLowerCase()} ${className}` });
+            }
+            return `<svg class="${className}" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/></svg>`;
+        };
 
-  <footer>
-    <p>© 2025 The Coding Club | Crafted with ❤️ by students</p>
-  </footer>
+        const getThemeClasses = (theme) => ({
+            root: theme === 'dark' ? 'dark-mode' : 'light-mode',
+            card: theme === 'dark' ? 'card-dark' : 'card-light',
+            cardSecondary: theme === 'dark' ? 'card-secondary-dark' : 'card-secondary-light',
+            input: theme === 'dark' ? 'input-dark' : 'input-light',
+            header: theme === 'dark' ? 'header-dark' : 'header-light',
+            sidebar: theme === 'dark' ? 'sidebar-dark' : 'sidebar-light',
+            buttonPrimary: 'button-primary',
+            buttonSecondary: theme === 'dark' ? 'button-secondary-dark' : 'button-secondary-light',
+            separator: theme === 'dark' ? 'border-gray-800' : 'border-gray-200',
+            messageOwn: 'message-own',
+            messageOther: theme === 'dark' ? 'message-other-dark' : 'message-other-light',
+        });
+        
+        const getPanelScreen = (rank) => {
+            switch (rank) {
+                case 'OWNER': return 'OwnerPanel';
+                case 'CO_OWNER': return 'CoOwnerPanel';
+                case 'HEAD_ADMIN': return 'HeadAdminPanel';
+                case 'ADMIN': return 'AdminPanel';
+                case 'HEAD_MOD': return 'HeadModPanel';
+                case 'MODERATOR': return 'ModPanel';
+                default: return 'Home';
+            }
+        };
 
-  <script src="script/js.js"></script>
+        const RankBadge = (rankKey, subRankKey) => {
+            const rank = RANKS[rankKey] || RANKS.USER;
+            const subRank = SUB_RANKS[subRankKey] || SUB_RANKS.NONE;
+
+            let html = `
+                <div class="flex items-center space-x-2">
+                    <span class="px-2 py-0.5 text-xs font-bold rounded-full shadow-md ${rank.color} ${rank.bg} bg-opacity-30">
+                        ${rank.name}
+                    </span>
+            `;
+            if (subRank.name !== 'None') {
+                html += `
+                    <span class="px-2 py-0.5 text-xs font-semibold rounded-full ${subRank.badge} text-white">
+                        ${subRank.name}
+                    </span>
+                `;
+            }
+            html += `</div>`;
+            return html;
+        };
+        
+        const updateState = (newState) => {
+            Object.assign(globalState, newState);
+            renderApp();
+        };
+
+        // --- FIREBASE LOGIC (REWRITTEN FOR REALTIME DATABASE) ---
+
+        const initializeFirebase = () => {
+            try {
+                app = firebase.initializeApp(firebaseConfig);
+                auth = firebase.auth();
+                // Initialize Realtime Database
+                db = firebase.database(); 
+
+                auth.onAuthStateChanged(async (user) => {
+                    if (user) {
+                        updateState({ userId: user.uid });
+                        await handleUserLogin(user);
+                    } else {
+                        updateState({ userId: null, username: '', userProfile: {}, currentScreen: 'Auth' });
+                    }
+                    updateState({ isAuthReady: true, loading: false });
+                });
+            } catch (e) {
+                console.error("Firebase initialization failed:", e);
+                updateState({ loading: false });
+            }
+        };
+
+        const handleUserLogin = async (user) => {
+            // RTDB path: artifacts/{appId}/public/data/users/{userId}
+            const userDocRef = db.ref('artifacts/' + appId + '/public/data/users/' + user.uid);
+            
+            try {
+                // Fetch user data once
+                const userSnap = await userDocRef.once('value'); 
+                
+                if (userSnap.exists()) {
+                    const data = userSnap.val();
+                    if (data.isBanned) {
+                        await auth.signOut();
+                        updateState({ userId: null, username: null, userProfile: {}, currentScreen: 'Auth' });
+                        return;
+                    }
+                    updateState({ 
+                        userProfile: { ...data, id: user.uid },
+                        username: data.username || 'Coder',
+                        currentScreen: 'Home' 
+                    });
+                } else {
+                    // Create default profile
+                    const defaultName = user.isAnonymous ? ('Guest_' + user.uid.substring(0, 4)) : user.email?.split('@')[0] || 'Coder';
+                    const newProfile = {
+                        username: defaultName,
+                        email: user.isAnonymous ? 'anonymous' : user.email,
+                        aboutMe: user.isAnonymous ? 'Just checking things out!' : 'A new coder has joined the club!',
+                        rank: 'USER',
+                        subRank: 'NONE',
+                        isBanned: false,
+                        isMuted: false,
+                        warnings: [],
+                        lastActive: Date.now()
+                    };
+                    await userDocRef.set(newProfile); // RTDB 'set'
+                    updateState({ 
+                        userProfile: { ...newProfile, id: user.uid },
+                        username: defaultName,
+                        currentScreen: 'Home' 
+                    });
+                }
+            } catch (e) {
+                console.error("Error setting/getting user profile:", e);
+            }
+        };
+
+        // Variables to hold RTDB listener callbacks
+        let messagesListener = null;
+        let usersListener = null;
+
+        const startFirestoreListeners = () => {
+            if (!db || !globalState.isAuthReady || !globalState.userId || globalState.currentScreen === 'Auth') return;
+
+            // Stop previous listeners if they exist (RTDB uses .off())
+            if (messagesListener) db.ref('artifacts/' + appId + '/public/data/messages').off('value', messagesListener);
+            if (usersListener) db.ref('artifacts/' + appId + '/public/data/users').off('value', usersListener);
+
+            // A. MESSAGES LISTENER (RTDB uses limitToLast for the newest items)
+            const messagesRef = db.ref('artifacts/' + appId + '/public/data/messages');
+            
+            // Define listener function
+            messagesListener = (snapshot) => {
+                const messagesObj = snapshot.val() || {};
+                const newMessages = Object.keys(messagesObj).map(key => ({
+                    id: key,
+                    ...messagesObj[key]
+                }));
+                
+                // Sort by timestamp if necessary (although limitToLast usually handles order for new items)
+                newMessages.sort((a, b) => a.timestamp - b.timestamp);
+
+                // Limit to 50 items client-side since limitToLast is an estimation without orderBy
+                const finalMessages = newMessages.slice(-50); 
+                
+                updateState({ messages: finalMessages });
+                
+                setTimeout(() => {
+                    const chatBottom = document.getElementById('chat-bottom');
+                    if (chatBottom) chatBottom.scrollIntoView({ behavior: 'smooth' });
+                }, 50);
+            };
+
+            // Start listener: limitToLast(50) fetches the last 50 entries
+            messagesRef.limitToLast(50).on('value', messagesListener, (error) => {
+                console.error("Error listening to messages:", error);
+            });
+
+            // B. USERS LISTENER
+            const usersRef = db.ref('artifacts/' + appId + '/public/data/users');
+            
+            // Define listener function
+            usersListener = (snapshot) => {
+                const usersObj = snapshot.val() || {};
+                const newUsers = {};
+                let updatedProfile = null;
+                
+                // Iterate over the object keys (user IDs)
+                Object.keys(usersObj).forEach(userId => {
+                    newUsers[userId] = { id: userId, ...usersObj[userId] };
+                    if (userId === globalState.userId) {
+                        updatedProfile = newUsers[userId];
+                    }
+                });
+
+                if (updatedProfile) {
+                    if (JSON.stringify(globalState.userProfile) !== JSON.stringify(updatedProfile)) {
+                        updateState({ users: newUsers, userProfile: updatedProfile });
+                    } else {
+                        globalState.users = newUsers;
+                    }
+                } else {
+                    globalState.users = newUsers;
+                }
+            };
+            
+            // Start listener
+            usersRef.on('value', usersListener, (error) => {
+                console.error("Error listening to users:", error);
+            });
+        };
+
+        // --- MODERATION ACTIONS (Rewritten for RTDB) ---
+
+        const handleModerationAction = async (targetId, action) => {
+            const userRankLevel = RANKS[globalState.userProfile.rank]?.level || 0;
+            if (userRankLevel < RANKS.MODERATOR.level) { 
+                console.error("Permission denied. Insufficient rank.");
+                return;
+            }
+            if (targetId === globalState.userId) {
+                console.error("Cannot moderate self.");
+                return;
+            }
+            
+            const targetUserRef = db.ref('artifacts/' + appId + '/public/data/users/' + targetId);
+            const targetUser = globalState.users[targetId] || {};
+
+            try {
+                if (action === 'ban') {
+                    if (targetUser.isBanned) {
+                        if (!window.confirm(`Are you sure you want to UNBAN ${targetUser.username}?`)) return;
+                        await targetUserRef.update({ isBanned: false, isMuted: false }); 
+                    } else {
+                        if (!window.confirm(`Are you sure you want to BAN ${targetUser.username}?`)) return;
+                        await targetUserRef.update({ isBanned: true, isMuted: true }); 
+                    }
+                } else if (action === 'mute') {
+                    await targetUserRef.update({ isMuted: !targetUser.isMuted });
+                } else if (action === 'warn') {
+                    // RTDB specific handling for appending to a list
+                    const warningListRef = db.ref('artifacts/' + appId + '/public/data/users/' + targetId + '/warnings');
+                    await warningListRef.push({ timestamp: Date.now(), moderatorId: globalState.userId, reason: "Manual Warning" });
+                }
+            } catch (e) {
+                console.error(`Error performing ${action} on user ${targetId}:`, e);
+            }
+        };
+
+        const handleRankChange = async (targetId, newRankKey) => {
+            const userRankLevel = RANKS[globalState.userProfile.rank]?.level || 0;
+            const newRankLevel = RANKS[newRankKey]?.level || 0;
+            const targetUserRankLevel = RANKS[globalState.users[targetId]?.rank]?.level || 0;
+            
+            if (userRankLevel <= targetUserRankLevel || newRankLevel >= userRankLevel) {
+                console.error("Permission denied. Cannot change rank to self-level or higher, or change rank of someone at or above your level.");
+                return;
+            }
+
+            const targetUserRef = db.ref('artifacts/' + appId + '/public/data/users/' + targetId);
+            try {
+                await targetUserRef.update({ rank: newRankKey });
+            } catch (e) {
+                console.error('Error changing rank:', e);
+            }
+        };
+
+        const handleSubRankChange = async (targetId, newSubRankKey) => {
+            const userRankLevel = RANKS[globalState.userProfile.rank]?.level || 0;
+            
+            if (userRankLevel < RANKS.HEAD_MOD.level) {
+                console.error("Permission denied. Only Head Moderators and above can assign sub-ranks.");
+                return;
+            }
+
+            const targetUserRef = db.ref('artifacts/' + appId + '/public/data/users/' + targetId);
+            try {
+                await targetUserRef.update({ subRank: newSubRankKey });
+            } catch (e) {
+                console.error('Error changing sub-rank:', e);
+            }
+        };
+        
+        // --- COMPONENTS (DOM RENDERING FUNCTIONS) --- (Unchanged, as they rely on globalState)
+        
+        const renderModal = (title, message) => { 
+            const t = getThemeClasses(globalState.theme);
+            const modalHTML = `<div id="custom-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"><div class="w-full max-w-md p-6 rounded-xl shadow-2xl ${t.cardSecondary} border"><div class="flex justify-between items-center mb-4"><h3 class="text-xl font-bold ${t.header}">${title}</h3><button id="modal-close-btn" class="text-gray-400 hover:text-gray-200 transition">${getIcon('X', 'w-5 h-5')}</button></div><p class='mb-6'>${message}</p><button id="modal-got-it-btn" class="w-full p-3 rounded-xl font-semibold ${t.buttonPrimary}">Got It</button></div></div>`;
+            document.body.insertAdjacentHTML('beforeend', modalHTML);
+            const closeModal = () => document.getElementById('custom-modal').remove();
+            document.getElementById('modal-close-btn').onclick = closeModal;
+            document.getElementById('modal-got-it-btn').onclick = closeModal;
+        };
+
+        const renderAuthForm = () => {
+            const { theme } = globalState;
+            const t = getThemeClasses(theme);
+            const authFormHTML = `
+                <div class="flex flex-col items-center justify-center min-h-screen ${t.root}">
+                    <div class="w-full max-w-md p-8 rounded-2xl shadow-2xl ${t.cardSecondary} border">
+                        ${getIcon('Code', `w-12 h-12 ${t.header} mx-auto mb-4`)}
+                        <h2 id="auth-title" class="text-4xl font-extrabold text-center mb-6 ${t.header}">Welcome Back!</h2>
+                        
+                        <form id="auth-form" class="space-y-4">
+                            <div id="signup-fields" class="space-y-4" style="display:none;">
+                                <input id="display-name" type="text" placeholder="Display Name (Your visible club name)" class="w-full p-3 rounded-xl ${t.input} transition-all duration-200" required />
+                                <textarea id="about-me" placeholder="About Me (Bio - Tell us about your coding interests!)" rows="3" class="w-full p-3 rounded-xl ${t.input} transition-all duration-200 resize-none"></textarea>
+                            </div>
+
+                            <input id="email" type="email" placeholder="Email" class="w-full p-3 rounded-xl ${t.input} transition-all duration-200" required />
+                            <input id="password" type="password" placeholder="Password" class="w-full p-3 rounded-xl ${t.input} transition-all duration-200" required />
+                            
+                            <div id="login-fields" class="mt-2">
+                                <div class="flex items-center justify-start">
+                                    <input id="remember-me" type="checkbox" class="h-4 w-4 rounded border-gray-300 accent-indigo-400" />
+                                    <label for="remember-me" class="ml-2 block text-sm font-medium ${t.header}">
+                                        Remember Me
+                                    </label>
+                                </div>
+                            </div>
+                            
+                            <div id="auth-error" class="p-3 text-red-100 bg-red-700 rounded-lg flex items-center" style="display:none;">
+                                ${getIcon('AlertTriangle', 'w-4 h-4 mr-2')} <span id="error-message"></span>
+                            </div>
+                            
+                            <button id="auth-submit-btn" type="submit" class="w-full p-3 rounded-xl font-semibold text-lg transition duration-300 shadow-lg ${t.buttonPrimary}">
+                                Log In
+                            </button>
+                        </form>
+
+                        <div class="mt-6 text-center">
+                            <button id="switch-auth-mode" class="text-sm font-medium ${t.header} hover:underline">
+                                Don't have an account? Sign up!
+                            </button>
+                        </div>
+                        
+                        <div class='mt-6 pt-6 border-t border-gray-700'>
+                            <button id="guest-login-btn" class="w-full p-3 rounded-xl font-semibold text-sm transition duration-300 shadow-lg ${t.buttonSecondary} text-gray-300 border border-gray-600">
+                                Continue as Guest
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            document.getElementById('app-root').innerHTML = authFormHTML;
+
+            // --- Auth Form Event Listeners (RTDB Updates) ---
+            let isLogin = true;
+            const authForm = document.getElementById('auth-form');
+            const authTitle = document.getElementById('auth-title');
+            const signupFields = document.getElementById('signup-fields');
+            const loginFields = document.getElementById('login-fields');
+            const authSubmitBtn = document.getElementById('auth-submit-btn');
+            const switchAuthModeBtn = document.getElementById('switch-auth-mode');
+            const guestLoginBtn = document.getElementById('guest-login-btn');
+            const authError = document.getElementById('auth-error');
+            const errorMessageSpan = document.getElementById('error-message');
+            
+            const setError = (msg) => {
+                errorMessageSpan.textContent = msg;
+                authError.style.display = msg ? 'flex' : 'none';
+            };
+
+            const toggleMode = () => {
+                isLogin = !isLogin;
+                authTitle.textContent = isLogin ? 'Welcome Back!' : 'Join the Club';
+                authSubmitBtn.textContent = isLogin ? 'Log In' : 'Sign Up';
+                switchAuthModeBtn.textContent = isLogin ? "Don't have an account? Sign up!" : 'Already have an account? Log In';
+                signupFields.style.display = isLogin ? 'none' : 'block';
+                loginFields.style.display = isLogin ? 'block' : 'none';
+                setError('');
+            };
+            
+            switchAuthModeBtn.onclick = toggleMode;
+            
+            guestLoginBtn.onclick = async () => {
+                setError('');
+                try {
+                    const userCred = await auth.signInAnonymously();
+                    // RTDB user ref
+                    const userDocRef = db.ref('artifacts/' + appId + '/public/data/users/' + userCred.user.uid);
+                    const guestUsername = 'Guest_' + userCred.user.uid.substring(0, 4);
+
+                    await userDocRef.set({ // RTDB 'set'
+                        username: guestUsername,
+                        email: 'anonymous',
+                        aboutMe: 'Just checking things out!',
+                        rank: 'USER',
+                        subRank: 'NONE',
+                        isBanned: false,
+                        isMuted: false,
+                        warnings: [],
+                        lastActive: Date.now()
+                    });
+                } catch (err) {
+                    setError(err.message.replace('Firebase: ', ''));
+                }
+            };
+
+            authForm.onsubmit = async (e) => {
+                e.preventDefault();
+                setError('');
+                
+                const email = document.getElementById('email').value;
+                const password = document.getElementById('password').value;
+                const displayName = document.getElementById('display-name').value;
+                const aboutMe = document.getElementById('about-me').value;
+                const rememberMe = document.getElementById('remember-me').checked;
+                
+                try {
+                    if (isLogin) {
+                        await auth.signInWithEmailAndPassword(email, password);
+                        renderModal('Session Persistence', 
+                            rememberMe 
+                                ? 'Your session will attempt to be remembered across browser restarts. If you are using a shared environment, please log out manually.' 
+                                : 'Your session will expire when you close this browser tab.'
+                        );
+                    } else {
+                        if (!displayName.trim()) {
+                            setError("Display Name is required for sign up.");
+                            return;
+                        }
+                        
+                        const userCred = await auth.createUserWithEmailAndPassword(email, password);
+                        
+                        // RTDB user ref
+                        await db.ref('artifacts/' + appId + '/public/data/users/' + userCred.user.uid).set({
+                            username: displayName.trim(),
+                            email: email,
+                            aboutMe: aboutMe.trim() || 'A new coder has joined the club!',
+                            rank: 'USER',
+                            subRank: 'NONE',
+                            isBanned: false,
+                            isMuted: false,
+                            warnings: [],
+                            lastActive: Date.now()
+                        });
+                    }
+                } catch (err) {
+                    setError(err.message.replace('Firebase: ', ''));
+                }
+            };
+        };
+        
+        const renderHomeScreen = () => { 
+            const { userId, username, userProfile, isInVoiceLobby, theme } = globalState;
+            const t = getThemeClasses(theme);
+            
+            const navItems = [
+                { name: 'Global Chat', icon: 'MessageSquare', screen: 'GlobalChat', description: 'Jump into the main developer discussion.' },
+                { name: 'Direct/Group Chats', icon: 'Zap', screen: 'Chats', description: 'Connect directly with friends and small groups.' },
+                { name: 'Guilds', icon: 'Users', screen: 'Guilds', description: 'Join or create specialized coding clubs and communities.' },
+            ];
+            
+            const homeHTML = `
+                <div class="p-8 h-full overflow-y-auto">
+                    <div class="p-6 rounded-2xl mb-8 shadow-2xl ${t.cardSecondary}">
+                        <h2 class="text-5xl font-extrabold mb-3 ${t.header}">Welcome, ${username}!</h2>
+                        <div class="flex items-start justify-between flex-wrap gap-4">
+                            <div class="flex flex-col space-y-1">
+                                ${RankBadge(userProfile.rank, userProfile.subRank)}
+                                <p class="text-sm italic ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}">User ID: ${userId}</p>
+                                <div class="mt-3 p-3 rounded-lg border ${t.separator}">
+                                    <p class='font-semibold mb-1'>About Me:</p>
+                                    <p class='text-sm italic'>${userProfile.aboutMe || 'No bio set yet.'}</p>
+                                </div>
+                            </div>
+                            
+                            <button id="toggle-voice-chat-home" class="flex items-center p-3 rounded-full font-semibold transition duration-300 shadow-lg ${
+                                isInVoiceLobby ? 'bg-red-600 hover:bg-red-700 text-white' : 'bg-green-600 hover:bg-green-700 text-white'
+                            }">
+                                ${getIcon(isInVoiceLobby ? 'VolumeX' : 'Volume2', 'w-5 h-5 mr-2')}
+                                ${isInVoiceLobby ? 'Disconnect Voice Lobby' : 'Join Global Voice Lobby'}
+                            </button>
+                        </div>
+                    </div>
+
+                    <h3 class="text-3xl font-bold mb-6">Navigation</h3>
+
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        ${navItems.map(item => `
+                            <div 
+                                data-screen="${item.screen}"
+                                class="nav-item p-6 rounded-xl cursor-pointer transition duration-300 transform hover:scale-[1.02] hover:shadow-indigo-500/50 shadow-xl border ${t.card} ${t.separator}"
+                            >
+                                ${getIcon(item.icon, `w-8 h-8 mb-3 ${t.header}`)}
+                                <h4 class="text-xl font-bold mb-1">${item.name}</h4>
+                                <p class="text-sm ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}">${item.description}</p>
+                            </div>
+                        `).join('')}
+                    </div>
+
+                    <div class="mt-8 p-6 rounded-xl shadow-inner ${t.cardSecondary}">
+                        <h4 class="text-xl font-bold mb-3 flex items-center">
+                            ${getIcon('UserPlus', 'w-5 h-5 mr-2')} Friend Management
+                        </h4>
+                        <p class="mb-4 ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}">
+                            Use the friend system to easily find and connect with other developers in the club.
+                        </p>
+                        <div class='flex space-x-4'>
+                            <button class="flex-1 p-3 rounded-lg font-semibold ${t.buttonPrimary}">Add Friend</button>
+                            <button class="flex-1 p-3 rounded-lg font-semibold ${t.buttonSecondary}">
+                                View Requests (0)
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            return homeHTML;
+        };
+
+        const renderChatScreen = () => { 
+            const { userId, userProfile, messages, username, theme, isInVoiceLobby } = globalState;
+            const t = getThemeClasses(theme);
+            
+            const selectedChat = 'global'; 
+            
+            if (selectedChat !== 'global') {
+                return `
+                    <div class="flex h-full w-full">
+                        <div class="w-1/4 p-4 border-r border-gray-800 flex-shrink-0">
+                            <div class="w-full h-full flex flex-col ${t.cardSecondary} p-4 rounded-xl">
+                                <div class="flex mb-4 p-1 rounded-full bg-gray-700">
+                                    <button class="flex-1 p-2 rounded-full font-semibold button-primary">DMs</button>
+                                    <button class="flex-1 p-2 rounded-full font-semibold button-secondary-dark">Group Chats</button>
+                                </div>
+                                <div class='p-3 border border-dashed rounded-lg text-center opacity-50'>
+                                    ${getIcon('Plus', 'w-4 h-4 inline mr-1')} New DM
+                                </div>
+                            </div>
+                        </div>
+                        <div class="w-3/4 p-4 flex flex-col justify-center items-center">
+                            <p class="text-2xl font-bold ${t.header}">DevFriend01</p>
+                            <p class='text-gray-500 mt-2'>Messaging screen for DMs/GCs is structural only. Return to Global Chat.</p>
+                            <button id="go-to-global-chat-btn" class="mt-4 p-3 rounded-xl font-semibold ${t.buttonPrimary}">
+                                Go to Global Chat
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }
+
+            // Global Chat View
+            const messagesHTML = messages.map(msg => {
+                const isOwnMessage = msg.userId === userId;
+                const rank = RANKS[msg.rank] || RANKS.USER;
+                const timeStr = new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+                return `
+                    <div class="flex mb-4 ${isOwnMessage ? 'justify-end' : 'justify-start'}">
+                        <div 
+                        class="max-w-xl px-4 py-2 rounded-xl shadow-lg transition-all duration-300 
+                            ${isOwnMessage 
+                                ? t.messageOwn + ' rounded-br-none' 
+                                : t.messageOther + ' rounded-tl-none border border-current'
+                            }"
+                        >
+                        ${!isOwnMessage ? `
+                            <div class="flex items-center text-sm font-semibold mb-1">
+                                <span class="${rank.color} mr-2">${msg.username}</span>
+                                ${RankBadge(msg.rank, msg.subRank)}
+                            </div>
+                        ` : ''}
+                        <p class="whitespace-pre-wrap">${msg.text}</p>
+                        <span class="block text-xs mt-1 ${isOwnMessage ? 'text-indigo-200' : (theme === 'dark' ? 'text-gray-400' : 'text-gray-500')}">
+                            ${timeStr}
+                        </span>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            return `
+                <div class="flex flex-col h-full w-full p-4">
+                    <div class="flex items-center justify-between p-3 mb-4 rounded-xl shadow-lg ${t.cardSecondary}">
+                        <h2 class="text-3xl font-bold flex items-center">
+                            ${getIcon('MessageSquare', `w-7 h-7 mr-3 ${t.header}`)} Global Chat
+                        </h2>
+                        <button id="toggle-voice-chat-chat" title="${isInVoiceLobby ? "Disconnect Global Voice" : "Join Global Voice Lobby"}"
+                            class="flex items-center p-2 rounded-full font-semibold transition duration-300 shadow-md ${
+                                isInVoiceLobby ? 'bg-red-600 hover:bg-red-700 text-white' : 'bg-green-600 hover:bg-green-700 text-white'
+                            }">
+                            ${getIcon(isInVoiceLobby ? 'VolumeX' : 'Volume2', 'w-5 h-5 mr-2')}
+                            ${isInVoiceLobby ? 'Voice Active' : 'Join Voice'}
+                        </button>
+                    </div>
+
+                    <div id="messages-container" class="flex flex-col flex-auto overflow-y-auto mb-4 p-4 rounded-xl shadow-inner border ${t.separator} ${t.cardSecondary}">
+                        ${messagesHTML}
+                        <div id="chat-bottom"></div>
+                    </div>
+
+                    <form id="chat-form" class="flex space-x-3 flex-shrink-0">
+                        <input
+                        id="new-message-input"
+                        type="text"
+                        placeholder="${userProfile.isMuted ? "You are muted and cannot type..." : "Type your message..."}"
+                        ${userProfile.isMuted ? 'disabled' : ''}
+                        class="flex-grow p-4 rounded-full focus:outline-none focus:ring-2 transition duration-150 shadow-xl disabled:cursor-not-allowed ${t.input} disabled:opacity-70"
+                        />
+                        <button
+                        type="submit"
+                        id="send-message-btn"
+                        ${userProfile.isMuted ? 'disabled' : ''}
+                        class="p-3 rounded-full transition duration-150 shadow-xl disabled:opacity-50 focus:outline-none focus:ring-4 focus:ring-offset-2 focus:ring-offset-gray-900 ${t.buttonPrimary}"
+                        >
+                            ${getIcon('Send', 'w-6 h-6')}
+                        </button>
+                    </form>
+                    ${userProfile.isMuted ? `
+                        <p class="text-red-400 text-sm mt-2 text-center font-medium p-2 rounded-lg ${t.card}">
+                            ${getIcon('AlertTriangle', 'w-4 h-4 inline mr-1')} You are currently muted.
+                        </p>
+                    ` : ''}
+                </div>
+            `;
+        };
+        
+        const renderGuildsScreen = () => { 
+            const { theme } = globalState;
+            const t = getThemeClasses(theme);
+            const mockGuilds = [
+                { name: 'Data Science Central', members: 45, language: 'Python' },
+                { name: 'Frontend Masters', members: 120, language: 'React/TS' },
+                { name: 'Mobile App Makers', members: 88, language: 'Flutter' },
+            ];
+
+            const guildsHTML = `
+                <div class="p-8 h-full overflow-y-auto">
+                    <h2 class="text-4xl font-bold mb-6 flex items-center">
+                        ${getIcon('Users', `w-8 h-8 mr-3 ${t.header}`)} Guilds (Coding Clubs)
+                    </h2>
+                    <div class="p-4 mb-6 rounded-xl ${t.cardSecondary}">
+                        <h3 class="text-xl font-semibold mb-2">My Guilds</h3>
+                        <p class='text-gray-500'>[Placeholder: Join or create guilds to access specialized chat rooms and voice lobbies.]</p>
+                    </div>
+                    
+                    <h3 class="text-2xl font-bold mb-4">Explore Guilds</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        ${mockGuilds.map((guild, index) => `
+                            <div class="p-5 rounded-xl shadow-lg border ${t.card}">
+                                <h4 class="text-xl font-bold mb-1">${guild.name}</h4>
+                                <p class="text-sm ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}">
+                                    ${guild.members} Members | Main Focus: ${guild.language}
+                                </p>
+                                <button class="mt-3 p-2 w-full rounded-lg font-semibold ${t.buttonPrimary}">
+                                    View Details / Join
+                                </button>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+            return guildsHTML;
+        };
+        
+        const renderModerationPanel = () => { 
+            const { userId, userProfile, users, theme } = globalState;
+            const t = getThemeClasses(theme);
+            
+            const userRankLevel = RANKS[userProfile.rank]?.level || 1;
+
+            const assignableRanks = Object.entries(RANKS)
+                .filter(([key, rank]) => rank.level < userRankLevel)
+                .map(([key, rank]) => ({ key, ...rank }));
+            
+            const canSetSubRank = userRankLevel >= RANKS.HEAD_MOD.level;
+
+            const filteredUsers = Object.values(users)
+                .filter(user => user.id !== userId && (RANKS[user.rank]?.level || 0) < userRankLevel) 
+                .sort((a, b) => (RANKS[b.rank]?.level || 0) - (RANKS[a.rank]?.level || 0));
+            
+            const userListItems = filteredUsers.map(user => {
+                const targetRankLevel = RANKS[user.rank]?.level || 1;
+                const RankIconName = RANKS[user.rank]?.icon;
+                
+                return `
+                    <div class="user-list-item mb-3 rounded-xl shadow-lg border transition-colors ${t.cardSecondary}" data-user-id="${user.id}">
+                        <div class="flex items-center justify-between p-4 cursor-pointer toggle-expansion">
+                            <div class="flex flex-col flex-grow truncate">
+                                <div class="flex items-center">
+                                    <span class="font-bold truncate text-lg ${user.isBanned ? 'line-through opacity-50' : ''}">
+                                        ${user.username}
+                                    </span>
+                                    <span class="text-xs ml-2 px-2 py-0.5 rounded-full ${user.isMuted ? 'bg-orange-600 text-white' : 'bg-gray-600 text-gray-200'}">
+                                        ${user.isBanned ? 'BANNED' : user.isMuted ? 'MUTED' : 'Active'}
+                                    </span>
+                                </div>
+                                <p class='text-sm italic mt-1'>ID: ${user.id}</p>
+                                <div class="mt-2">
+                                    ${RankBadge(user.rank, user.subRank)}
+                                </div>
+                            </div>
+                            <div class="flex items-center space-x-3">
+                                ${RankIconName ? getIcon(RankIconName, `w-6 h-6 ${RANKS[user.rank].color}`) : ''}
+                                ${getIcon('ChevronDown', 'w-5 h-5')}
+                            </div>
+                        </div>
+
+                        <div class="user-expansion p-4 pt-0 border-t ${t.separator}" style="display:none;">
+                            <h4 class='text-lg font-bold mb-2 pt-2'>Actions</h4>
+                            <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
+                                <button data-action="warn" data-user-id="${user.id}" class="p-2 rounded-lg text-white bg-yellow-600 hover:bg-yellow-700 transition">
+                                    Warn (${user.warnings?.length || 0})
+                                </button>
+                                <button data-action="mute" data-user-id="${user.id}" class="p-2 rounded-lg text-white ${user.isMuted ? 'bg-green-600 hover:bg-green-700' : 'bg-orange-600 hover:bg-orange-700'}">
+                                    ${user.isMuted ? 'Unmute' : 'Mute'}
+                                </button>
+                                <button data-action="ban" data-user-id="${user.id}" class="p-2 rounded-lg text-white ${user.isBanned ? 'bg-green-900 hover:bg-green-800' : 'bg-red-700 hover:bg-red-800'}">
+                                    ${user.isBanned ? 'Unban' : 'Ban'}
+                                </button>
+                            </div>
+                            
+                            <div class='mt-4'>
+                                <h4 class='font-bold mb-2'>Change Main Rank (Below ${RANKS[userProfile.rank].name})</h4>
+                                <div class="grid grid-cols-2 gap-3">
+                                    ${assignableRanks.map(rank => `
+                                        <button 
+                                            data-rank-key="${rank.key}"
+                                            data-user-id="${user.id}"
+                                            class="set-main-rank p-2 rounded-lg font-semibold transition ${rank.level >= targetRankLevel ? 'opacity-50 cursor-not-allowed' : ''} ${rank.bg} text-white"
+                                            ${rank.level >= targetRankLevel ? 'disabled' : ''}
+                                        >
+                                            Set to ${rank.name}
+                                        </button>
+                                    `).join('')}
+                                </div>
+                            </div>
+
+                            ${canSetSubRank ? `
+                                <div class='mt-4'>
+                                    <h4 class='font-bold mb-2'>Set Sub-Rank (Verified/Certified)</h4>
+                                    <div class="grid grid-cols-3 gap-3">
+                                        ${Object.entries(SUB_RANKS).filter(([key]) => key !== 'NONE').map(([key, subRank]) => `
+                                            <button 
+                                                data-sub-rank-key="${key}"
+                                                data-user-id="${user.id}"
+                                                class="set-sub-rank p-2 rounded-lg font-semibold transition text-white ${subRank.badge}"
+                                            >
+                                                Set ${subRank.name}
+                                            </button>
+                                        `).join('')}
+                                        <button 
+                                            data-sub-rank-key="NONE"
+                                            data-user-id="${user.id}"
+                                            class="set-sub-rank p-2 rounded-lg font-semibold transition ${t.buttonSecondary}"
+                                        >
+                                            Remove Sub-Rank
+                                        </button>
+                                    </div>
+                                </div>
+                            ` : ''}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+            
+            const panelHTML = `
+                <div class="p-8 h-full overflow-y-auto">
+                    <div class="p-5 rounded-xl shadow-2xl mb-6 ${t.cardSecondary}">
+                        <h2 class="text-4xl font-bold flex items-center mb-1">
+                            ${getIcon('Settings', `w-8 h-8 mr-3 ${t.header}`)} ${userProfile.rank} Panel
+                        </h2>
+                        <p class='text-sm text-red-400'>Access Level: ${userRankLevel}. You can only assign ranks *strictly* lower than your own.</p>
+                    </div>
+
+                    <input
+                        type="text"
+                        id="moderation-search"
+                        placeholder="Search users by name or ID..."
+                        class="w-full p-3 mb-6 rounded-xl ${t.input} transition-all duration-200 shadow-inner"
+                    />
+
+                    <div id="user-list" class="flex flex-col space-y-4">
+                        ${userListItems.length === 0 ? `
+                            <div class="p-10 text-center rounded-xl ${t.cardSecondary}">
+                                <p class='text-gray-500'>No users found matching current filter/criteria.</p>
+                            </div>
+                        ` : userListItems}
+                    </div>
+                </div>
+            `;
+            return panelHTML;
+        };
+
+        // --- MAIN APP RENDERER ---
+        const renderApp = () => {
+            const { userId, userProfile, currentScreen, theme, loading, isAuthReady } = globalState;
+            const t = getThemeClasses(theme);
+            const appRoot = document.getElementById('app-root');
+            appRoot.className = `root ${t.root}`;
+
+            if (loading || !isAuthReady || !db) {
+                return;
+            }
+
+            if (currentScreen === 'Auth') {
+                renderAuthForm();
+                return;
+            }
+            
+            let screenHTML = '';
+            let screenName = '';
+            switch (currentScreen) {
+                case 'GlobalChat':
+                    screenHTML = renderChatScreen();
+                    screenName = 'Global Chat';
+                    break;
+                case 'Chats':
+                    screenHTML = renderChatScreen(); 
+                    screenName = 'DMs & GCs';
+                    break;
+                case 'Guilds':
+                    screenHTML = renderGuildsScreen();
+                    screenName = 'Guilds';
+                    break;
+                case 'OwnerPanel':
+                case 'CoOwnerPanel':
+                case 'HeadAdminPanel':
+                case 'AdminPanel':
+                case 'HeadModPanel':
+                case 'ModPanel':
+                    screenHTML = renderModerationPanel();
+                    screenName = RANKS[userProfile.rank]?.name + ' Panel';
+                    break;
+                case 'Home':
+                default:
+                    screenHTML = renderHomeScreen();
+                    screenName = 'Home';
+            }
+
+            const navItems = [
+                { name: 'Home', icon: 'Home', screen: 'Home', isPanel: false },
+                { name: 'Global Chat', icon: 'MessageSquare', screen: 'GlobalChat', isPanel: false },
+                { name: 'DMs & GCs', icon: 'Zap', screen: 'Chats', isPanel: false },
+                { name: 'Guilds', icon: 'Users', screen: 'Guilds', isPanel: false },
+            ];
+            
+            const userRank = userProfile.rank;
+            if (userRank && RANKS[userRank]?.level >= RANKS.MODERATOR.level) {
+                navItems.push({ 
+                    name: `${RANKS[userRank].name} Panel`, 
+                    icon: 'Shield', 
+                    screen: getPanelScreen(userRank), 
+                    isPanel: true 
+                });
+            }
+            
+            const sidebarHTML = `
+                <nav id="sidebar-nav" class="w-20 md:w-64 flex-shrink-0 flex flex-col items-center md:items-start p-3 md:p-5 border-r ${t.separator} ${t.sidebar} shadow-2xl">
+                    
+                    <div class='flex items-center justify-center md:justify-start w-full mb-8'>
+                        ${getIcon('Code', `w-10 h-10 ${t.header}`)}
+                        <h1 class="hidden md:block text-2xl font-extrabold ml-3 ${t.header}">Club</h1>
+                    </div>
+
+                    <div class="flex flex-col space-y-3 w-full flex-grow">
+                        ${navItems.map(item => `
+                            <button
+                                data-screen="${item.screen}"
+                                title="${item.name}"
+                                class="nav-button group flex items-center w-full p-3 rounded-xl transition duration-200 
+                                    ${currentScreen === item.screen ? t.buttonPrimary + ' shadow-lg' : t.buttonSecondary} 
+                                    ${item.isPanel ? 'border border-red-500/50' : ''}"
+                            >
+                                ${getIcon(item.icon, `w-6 h-6 flex-shrink-0 ${item.isPanel ? 'text-red-300' : ''}`)}
+                                <span class="hidden md:block font-medium ml-4 truncate">${item.name}</span>
+                            </button>
+                        `).join('')}
+                    </div>
+
+                    <div class='w-full pt-4 border-t border-gray-700 mt-4 flex flex-col items-center md:items-start space-y-3'>
+                        <div class="hidden md:flex flex-col w-full p-2 rounded-lg bg-gray-800">
+                            <span class="font-bold truncate text-sm">${globalState.username}</span>
+                            ${RankBadge(userProfile.rank, userProfile.subRank)}
+                        </div>
+                        
+                        <button id="theme-toggle-btn" title="Toggle Theme" class="w-full p-3 rounded-xl transition duration-200 ${t.buttonSecondary}">
+                            ${theme === 'dark' ? getIcon('Sun', 'w-6 h-6 text-yellow-300') : getIcon('Moon', 'w-6 h-6 text-indigo-700')}
+                        </button>
+                        
+                        <button id="logout-btn" title="Logout" class="w-full p-3 rounded-xl transition duration-200 bg-red-600 hover:bg-red-700 text-white shadow-md">
+                            ${getIcon('LogOut', 'w-6 h-6')}
+                            <span class="hidden md:inline font-medium ml-4">Log Out</span>
+                        </button>
+                    </div>
+                </nav>
+            `;
+
+            appRoot.innerHTML = `
+                <div class="flex h-screen w-full overflow-hidden transition-colors duration-300 ${t.root}">
+                    ${sidebarHTML}
+                    <main class="flex-auto overflow-hidden">
+                        <div id="screen-content" class="h-full">
+                            ${screenHTML}
+                        </div>
+                    </main>
+                </div>
+            `;
+            
+            // --- Add Global Event Listeners ---
+            document.getElementById('theme-toggle-btn').onclick = () => {
+                updateState({ theme: theme === 'dark' ? 'light' : 'dark' });
+            };
+
+            document.getElementById('logout-btn').onclick = async () => {
+                await auth.signOut();
+                updateState({ userId: null, username: '', userProfile: {}, currentScreen: 'Auth' });
+            };
+            
+            document.querySelectorAll('.nav-button, .nav-item').forEach(el => {
+                el.onclick = () => {
+                    const screen = el.getAttribute('data-screen');
+                    if (screen) updateState({ currentScreen: screen });
+                };
+            });
+            
+            const toggleVoiceChat = () => {
+                updateState({ isInVoiceLobby: !globalState.isInVoiceLobby });
+            };
+            
+            const voiceToggleBtnHome = document.getElementById('toggle-voice-chat-home');
+            if (voiceToggleBtnHome) voiceToggleBtnHome.onclick = toggleVoiceChat;
+
+            const voiceToggleBtnChat = document.getElementById('toggle-voice-chat-chat');
+            if (voiceToggleBtnChat) voiceToggleBtnChat.onclick = toggleVoiceChat;
+            
+            const goToGlobalChatBtn = document.getElementById('go-to-global-chat-btn');
+            if (goToGlobalChatBtn) goToGlobalChatBtn.onclick = () => updateState({ currentScreen: 'GlobalChat' });
+
+
+            // --- Screen-specific Listeners ---
+            if (currentScreen === 'GlobalChat') {
+                const chatForm = document.getElementById('chat-form');
+                const newMessageInput = document.getElementById('new-message-input');
+                
+                if (chatForm) {
+                    chatForm.onsubmit = async (e) => {
+                        e.preventDefault();
+                        const newMessage = newMessageInput.value.trim();
+                        if (!newMessage || userProfile.isMuted) return;
+                        
+                        // RTDB: Use .push().set() to create a new unique key and save data
+                        const messagesRef = db.ref('artifacts/' + appId + '/public/data/messages');
+                        try {
+                            await messagesRef.push().set({
+                                text: newMessage,
+                                userId: userId,
+                                username: username,
+                                rank: userProfile.rank,
+                                subRank: userProfile.subRank,
+                                timestamp: firebase.database.ServerValue.TIMESTAMP // Use server timestamp
+                            });
+                            newMessageInput.value = '';
+                        } catch (e) {
+                            console.error("Error adding document: ", e);
+                        }
+                    };
+                }
+            }
+
+            if (currentScreen.includes('Panel')) {
+                // Moderation Panel Listeners
+                document.querySelectorAll('[data-action]').forEach(btn => {
+                    btn.onclick = (e) => {
+                        const targetId = e.currentTarget.getAttribute('data-user-id');
+                        const action = e.currentTarget.getAttribute('data-action');
+                        handleModerationAction(targetId, action);
+                    };
+                });
+
+                document.querySelectorAll('.set-main-rank').forEach(btn => {
+                    btn.onclick = (e) => {
+                        if (e.currentTarget.disabled) return;
+                        const targetId = e.currentTarget.getAttribute('data-user-id');
+                        const newRankKey = e.currentTarget.getAttribute('data-rank-key');
+                        handleRankChange(targetId, newRankKey);
+                    };
+                });
+
+                document.querySelectorAll('.set-sub-rank').forEach(btn => {
+                    btn.onclick = (e) => {
+                        const targetId = e.currentTarget.getAttribute('data-user-id');
+                        const newSubRankKey = e.currentTarget.getAttribute('data-sub-rank-key');
+                        handleSubRankChange(targetId, newSubRankKey);
+                    };
+                });
+                
+                // Expansion/Collapse logic
+                document.querySelectorAll('.user-list-item').forEach(item => {
+                    const toggle = item.querySelector('.toggle-expansion');
+                    const expansion = item.querySelector('.user-expansion');
+                    const chevron = item.querySelector('.lucide-chevron-down, .lucide-chevron-up');
+                    
+                    toggle.onclick = () => {
+                        const isExpanded = expansion.style.display === 'block';
+                        expansion.style.display = isExpanded ? 'none' : 'block';
+                        chevron.outerHTML = isExpanded ? getIcon('ChevronDown', 'w-5 h-5') : getIcon('ChevronUp', 'w-5 h-5');
+                    };
+                });
+            }
+
+            // Start listeners after rendering authenticated screens
+            startFirestoreListeners();
+        };
+
+        // --- Initialization ---
+        document.addEventListener('DOMContentLoaded', () => {
+            initializeFirebase();
+            renderApp(); // Initial render for loading/auth screen
+        });
+    </script>
 </body>
 </html>
